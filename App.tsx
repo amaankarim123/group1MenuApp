@@ -3,42 +3,35 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 
+type MenuOption = 'beef' | 'chicken' | 'mutton' | 'veg';
+
+type MenuItem = {
+  label: string;
+  value: MenuOption;
+};
+
+const menuItems: MenuItem[] = [
+  { label: 'Beef', value: 'beef' },
+  { label: 'Chicken', value: 'chicken' },
+  { label: 'Mutton', value: 'mutton' },
+  { label: 'Veg', value: 'veg' },
+];
+
 export default function App() {
-
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
+  const [value, setValue] = useState<MenuOption | null>(null);
   const [feedback, setFeedback] = useState('No option selected');
-
-  const [items, setItems] = useState([
-    {label: 'Beef', value: 'beef'},
-    {label: 'Chicken', value: 'chicken'},
-    {label: 'Mutton', value: 'mutton'},
-    {label: 'Veg', value: 'veg'},
-  ]);
+  const [items, setItems] = useState<MenuItem[]>(menuItems);
 
   const makeSelection = () => {
-    switch(value!!) {
-      case 'beef':
-        console.log('Beef selected');
-        setFeedback('Beef selected');
-        break;
-      case 'chicken':
-        console.log('Chicken selected');
-        setFeedback('Chicken selected');
-        break;
-      case 'mutton':
-        console.log('Mutton selected');
-        setFeedback('Mutton selected');
-        break;
-      case 'veg':
-        console.log('Veg selected');
-        setFeedback('Veg selected');
-        break;
-      default:
-        console.log('No option selected');
-        setFeedback('No option selected');
+    if (value === null) {
+      setFeedback('Please select an option first');
+      return;
     }
-  }
+
+    const selectedItem = items.find((item) => item.value === value);
+    setFeedback(selectedItem ? `${selectedItem.label} selected` : 'No option selected');
+  };
 
   return (
     <View style={styles.container}>
@@ -51,22 +44,21 @@ export default function App() {
         setOpen={setOpen}
         setValue={setValue}
         setItems={setItems}
-        theme="DARK"
+        theme="LIGHT"
         placeholder="Select an option..."
+        style={styles.picker}
       />
       <TouchableOpacity
-        style={{
-          backgroundColor: 'blue',
-          padding: 10,
-          marginTop: 20,
-          borderRadius: 5,
-        }}
-        onPress={() => {makeSelection()}}
+        style={[styles.submitButton, !value && styles.submitButtonDisabled]}
+        onPress={makeSelection}
+        disabled={!value}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: !value }}
       >
-        <Text style={{color: 'white'}}>Submit</Text>
+        <Text style={styles.submitText}>Submit</Text>
       </TouchableOpacity>
 
-      <Text style={{marginTop: 20}}>Selected Option: {feedback}</Text>
+      <Text style={styles.feedback}>Selected Option: {feedback}</Text>
       <StatusBar style="auto" />
     </View>
   );
@@ -75,8 +67,32 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f7f8',
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 24,
+  },
+  picker: {
+    width: '100%',
+    maxWidth: 440,
+  },
+  submitButton: {
+    width: '100%',
+    maxWidth: 440,
+    alignItems: 'center',
+    backgroundColor: '#176b52',
+    padding: 12,
+    marginTop: 20,
+    borderRadius: 5,
+  },
+  submitButtonDisabled: {
+    backgroundColor: '#8b9b95',
+  },
+  submitText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  feedback: {
+    marginTop: 20,
   },
 });
